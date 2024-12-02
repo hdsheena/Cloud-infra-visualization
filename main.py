@@ -63,7 +63,8 @@ def get_client_classes():
         'communication': azure_imports.CommunicationServiceManagementClient,
         'alertsmanagement': azure_imports.AlertsManagementClient,
         'datamigration': azure_imports.DataMigrationManagementClient,
-        'recovery_backup_items': azure_imports.RecoveryServicesBackupClient
+        'recovery_backup_items': azure_imports.RecoveryServicesBackupClient,
+        'appmgmtconfiguration': azure_imports.AppConfigurationManagementClient,
     }
     return client_classes
 
@@ -83,6 +84,10 @@ def get_resource_handlers():
             (handle_appservices, 'web'),
             (handle_function_app, 'web')
         ],
+        'Microsoft.AppConfiguration/configurationStores': [
+            (handle_app_configuration, 'appmgmtconfiguration'),
+           # (handle_app_configuration_keys, 'appconfiguration')
+            ],
         'Microsoft.KeyVault/vaults': [(handle_key_vault, 'keyvault')],
         'Microsoft.OperationalInsights/workspaces': [(handle_log_analytics_workspace, 'log_analytics')],
         'Microsoft.Storage/storageAccounts': [(handle_storage_account, 'storage')],

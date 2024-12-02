@@ -64,8 +64,31 @@ def handle_function_app(resource, rg, web_client):
     except Exception as e:
         return {'Error': str(e)}
 
-def handle_app_configuration(resource, rg, appconfig_client):
-    return handle_resource(appconfig_client.configuration_stores.get, rg, resource)    
+from azure.appconfiguration import AzureAppConfigurationClient
+
+def handle_app_configuration(resource, rg, appconfig_mgmt_client):
+    app_config_store = handle_resource(appconfig_mgmt_client.configuration_stores.get, rg, resource) 
+    keys = appconfig_mgmt_client.configuration_stores.list_keys(rg.name, resource.name)
+    # Get the primary read-only key
+    connection_string = None
+    for key in keys:
+        if key.name == "Primary Read Only":
+            connection_string = key.connection_string
+            break
+
+    if not connection_string:
+        raise Exception("Primary read-only key not found")
+   
+    app_config_client = AzureAppConfigurationClient.from_connection_string(connection_string)
+
+    # Get all configuration settings
+    settings = app_config_client.list_configuration_settings()
+    
+    # Convert settings to a list of dictionaries
+    settings_list = [setting.as_dict() for setting in settings]
+    
+    return settings_list
+    
 
 def handle_batch_account(resource, rg, batch_client):
     return handle_resource(batch_client.batch_account.get, rg, resource)
